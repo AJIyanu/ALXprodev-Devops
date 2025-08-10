@@ -1,0 +1,28 @@
+```bash
+#!/bin/bash
+
+JSON_FILE="data.json"
+
+
+if [ ! -f "$JSON_FILE" ]; then
+  echo "Error: $JSON_FILE not found."
+  exit 1
+fi
+
+
+NAME=$(jq -r '.name' "$JSON_FILE")
+HEIGHT_DECIMETER=$(jq -r '.height' "$JSON_FILE")
+WEIGHT_HECTOGRAM=$(jq -r '.weight' "$JSON_FILE")
+TYPE=$(jq -r '.types[0].type.name' "$JSON_FILE")
+
+
+HEIGHT_METER=$(awk "BEGIN {printf \"%.1f\", $HEIGHT_DECIMETER / 10}")
+WEIGHT_KG=$(awk "BEGIN {printf \"%.0f\", $WEIGHT_HECTOGRAM / 10}")
+
+
+FORMATTED_NAME=$(echo "$NAME" | sed 's/\(.\)/\U\1/')
+FORMATTED_TYPE=$(echo "$TYPE" | sed 's/\(.\)/\U\1/')
+
+# Print the final formatted string
+echo "$FORMATTED_NAME is of type $FORMATTED_TYPE, weighs $WEIGHT_KG kg, and is $HEIGHT_METER m tall."
+```
