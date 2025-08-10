@@ -1,0 +1,26 @@
+#!/bin/bash
+
+
+declare -A POKEMON_URLS
+POKEMON_URLS[bulbasaur]="https://pokeapi.co/api/v2/pokemon/1/"
+POKEMON_URLS[ivysaur]="https://pokeapi.co/api/v2/pokemon/2/"
+POKEMON_URLS[venusaur]="https://pokeapi.co/api/v2/pokemon/3/"
+POKEMON_URLS[charmander]="https://pokeapi.co/api/v2/pokemon/4/"
+POKEMON_URLS[charmeleon]="https://pokeapi.co/api/v2/pokemon/5/"
+
+for POKEMON in "${!POKEMON_URLS[@]}"; do
+  URL="${POKEMON_URLS[$POKEMON]}"
+  OUTPUT_FILE="$POKEMON.json"
+
+  echo "Starting background fetch for $POKEMON from $URL..."
+
+
+  curl -s -o "$OUTPUT_FILE" -w "%{http_code}" "$URL" >/dev/null 2>&1 &
+done
+
+echo "All background processes have been started. Waiting for them to complete..."
+wait
+
+echo "All Pokémon data has been fetched."
+echo "The following files should now exist:"
+ls -1 *.json
