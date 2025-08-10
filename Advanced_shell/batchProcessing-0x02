@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# A list of Pokémon and their specific API URLs
+# Based on the JSON snippet provided
+declare -A POKEMON_URLS
+POKEMON_URLS[bulbasaur]="https://pokeapi.co/api/v2/pokemon/1/"
+POKEMON_URLS[ivysaur]="https://pokeapi.co/api/v2/pokemon/2/"
+POKEMON_URLS[venusaur]="https://pokeapi.co/api/v2/pokemon/3/"
+POKEMON_URLS[charmander]="https://pokeapi.co/api/v2/pokemon/4/"
+POKEMON_URLS[charmeleon]="https://pokeapi.co/api/v2/pokemon/5/"
+
+# A delay between requests to avoid rate-limiting (in seconds)
+DELAY=2
+
+# Loop through the associative array
+for POKEMON in "${!POKEMON_URLS[@]}"; do
+  # Get the URL for the current Pokémon
+  URL="${POKEMON_URLS[$POKEMON]}"
+
+  # Construct the output file name
+  OUTPUT_FILE="$POKEMON.json"
+
+  echo "Fetching data for $POKEMON from $URL..."
+
+  # Make the request and save the output
+  # The -s flag makes curl silent, and -o specifies the output file
+  # The -w "%{http_code}" captures the HTTP status code
+  HTTP_STATUS=$(curl -s -o "$OUTPUT_FILE" -w "%{http_code}" "$URL")
+
+  # Check if the HTTP status code is 200 (OK)
+  if [ "$HTTP_STATUS" -eq 200 ]; then
+    echo "  -> Data saved to $OUTPUT_FILE"
+  else
+    echo "  -> Error: Failed to fetch data for $POKEMON. HTTP status code: $HTTP_STATUS"
+    # Remove the created file if the request failed
+    rm -f "$OUTPUT_FILE"
+  fi
+
+  # Wait for the specified delay before the next request
+  echo "Waiting for $DELAY seconds..."
+  sleep "$DELAY"
+done
+
+echo "Script finished."
