@@ -24,3 +24,4 @@ FORMATTED_TYPE=$(echo "$TYPE" | sed 's/^\(.\)/\U\1/')
 
 # Print the final formatted string
 echo "$FORMATTED_NAME is of type $FORMATTED_TYPE, weighs $WEIGHT_KG kg, and is $HEIGHT_M m tall."
+# "$name is of type $type, weighs ${formatted_weight}kg, and is ${formatted_height}m tall."
