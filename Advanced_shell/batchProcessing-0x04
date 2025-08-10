@@ -1,6 +1,9 @@
+Here is a shell script that fetches data for the specified Pokémon in parallel, using `jobs` and `wait` to manage the background processes. This approach gives you more explicit control over each individual job.
+
+```bash
 #!/bin/bash
 
-
+# A list of Pokémon and their specific API URLs
 declare -A POKEMON_URLS
 POKEMON_URLS[bulbasaur]="https://pokeapi.co/api/v2/pokemon/1/"
 POKEMON_URLS[ivysaur]="https://pokeapi.co/api/v2/pokemon/2/"
@@ -8,19 +11,51 @@ POKEMON_URLS[venusaur]="https://pokeapi.co/api/v2/pokemon/3/"
 POKEMON_URLS[charmander]="https://pokeapi.co/api/v2/pokemon/4/"
 POKEMON_URLS[charmeleon]="https://pokeapi.co/api/v2/pokemon/5/"
 
+# An array to hold the Process IDs (PIDs) of our background jobs
+PIDS=()
+
+echo "Starting background processes to fetch Pokémon data..."
+echo "--------------------------------------------------------"
+
+# Loop through the list of Pokémon to start each fetch in the background
 for POKEMON in "${!POKEMON_URLS[@]}"; do
   URL="${POKEMON_URLS[$POKEMON]}"
   OUTPUT_FILE="$POKEMON.json"
 
-  echo "Starting background fetch for $POKEMON from $URL..."
-
-
-  curl -s -o "$OUTPUT_FILE" -w "%{http_code}" "$URL" >/dev/null 2>&1 &
+  # The curl command is run in the background with '&'
+  # We redirect output to /dev/null to keep the console clean
+  curl -s -o "$OUTPUT_FILE" "$URL" >/dev/null 2>&1 &
+  
+  # Store the Process ID of the last background command ($!)
+  PIDS+=($!)
+  echo "  - Started fetch for $POKEMON (PID: $!)"
 done
 
-echo "All background processes have been started. Waiting for them to complete..."
-wait
+echo ""
+echo "All background jobs are now running."
+echo "You can use the 'jobs' command to see their status:"
+jobs
 
-echo "All Pokémon data has been fetched."
-echo "The following files should now exist:"
+echo "--------------------------------------------------------"
+echo "Waiting for all background processes to complete..."
+echo "--------------------------------------------------------"
+
+# Loop through the PIDs and wait for each one to finish
+for PID in "${PIDS[@]}"; do
+  wait "$PID"
+  echo "  - Process $PID has completed."
+done
+
+echo ""
+echo "All Pokémon data has been successfully fetched and saved."
+echo "You can now list the generated JSON files:"
 ls -1 *.json
+
+# Note on 'kill':
+# If a background process were to hang or become unresponsive,
+# you could use the 'kill' command to terminate it with its PID.
+# For example, to stop a specific process:
+#   kill <PID>
+# Or to stop all jobs at once:
+#   kill $(jobs -p)
+```
