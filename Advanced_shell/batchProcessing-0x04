@@ -1,6 +1,3 @@
-Here is a shell script that fetches data for the specified Pokémon in parallel, using `jobs` and `wait` to manage the background processes. This approach gives you more explicit control over each individual job.
-
-```bash
 #!/bin/bash
 
 # A list of Pokémon and their specific API URLs
@@ -58,4 +55,3 @@ ls -1 *.json
 #   kill <PID>
 # Or to stop all jobs at once:
 #   kill $(jobs -p)
-```
